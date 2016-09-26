@@ -17,6 +17,7 @@ class WhoisHandler(SocketServer.BaseRequestHandler):
     """
     def handle(self):
         syslog.syslog(syslog.LOG_INFO, self.client_address[0] + ' is connected')
+        print self.client_address[0] 
         #log self.client_address[0] #log to redis?
         #setup query
 
