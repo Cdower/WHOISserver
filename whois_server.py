@@ -2,7 +2,7 @@
 
 import ConfigParser
 config= ConfigParser.RawConfigParser();
-config.read("./whois-server.conf")
+config.read("./whois_server.conf")
 
 import syslog
 syslog.openlog('Whois_Server_Queries', )
