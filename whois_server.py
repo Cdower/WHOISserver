@@ -16,8 +16,8 @@ class WhoisHandler(SocketServer.BaseRequestHandler):
     Handles whois requests
     """
     def handle(self):
-        syslog.syslog(syslog.LOG_INFO, self.client_address[0] + ' is connected')
-        print self.client_address[0] 
+        syslog.syslog(syslog.LOG_INFO, self.client_address[0] + ' is connected') #log client connections
+        print self
         #log self.client_address[0] #log to redis?
         #setup query
 
