@@ -23,4 +23,4 @@ class WhoisHandler(SocketServer.BaseRequestHandler):
 
 
 server = SocketServer.ThreadingTCPServer((host, port), WhoisHandler)
-server.server_forever()
+server.serve_forever()
