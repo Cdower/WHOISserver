@@ -9,7 +9,7 @@ syslog.openlog('Whois_Server_Queries', )
 
 host = config.get('whois_server', 'host')
 port = int(config.get('whois_server', 'port'))
-import socketServer
+import SocketServer
 
 class WhoisHandler(SocketServer.BaseRequestHandler):
     """
