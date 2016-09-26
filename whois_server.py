@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+
+import ConfigParser
+config= ConfigParser.RawConfigParser();
+config.read("./whois-server.conf")
+
+import syslog
+syslog.openlog('Whois_Server_Queries', )
+
+host = config.get('whois_server', 'host')
+port = int(config.get('whois_server', 'port'))
+import socketServer
+
+class WhoisHandler(SocketServer.BaseRequestHandler):
+    """
+    Handles whois requests
+    """
+    def handle(self):
+        syslog.syslog(syslog.LOG_INFO, self.client_address[0] + ' is connected')
+        #log self.client_address[0] #log to redis?
+        #setup query
+
+
+
+server = SocketServer.ThreadingTCPServer((host, port), WhoisHandler)
+server.server_forever()
