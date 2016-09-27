@@ -17,17 +17,8 @@ curl -o /etc/yum.repos.d/powerdns-auth-40.repo https://repo.powerdns.com/repo-fi
 #install pdns and backend
 yum -y install pdns pdns-backend-mysql
 
-#append to /etc/pdns/pdns.config
-launch=gmysql
-gmysql-host=localhost
-gmysql-user=powerdns
-gmysql-dbname=powerdns
-gmysql-password=mysecretpassword
-
-
 mysql -u root -p
-
-
+######################
 CREATE DATABASE powerdns;
 GRANT ALL ON powerdns.* TO 'powerdns'@'localhost' IDENTIFIED BY 'mysecretpassword';
 GRANT ALL ON powerdns.* TO 'powerdns'@'centos7.localdomain' IDENTIFIED BY 'mysecretpassword';
@@ -126,7 +117,15 @@ CREATE TABLE tsigkeys (
 CREATE UNIQUE INDEX namealgoindex ON tsigkeys(name, algorithm);
 
 exit
-
+##############################
+chmod 666 /etc/pdns/pdns.conf
+#append to /etc/pdns/pdns.config
+launch=gmysql
+gmysql-host=localhost
+gmysql-user=powerdns
+gmysql-dbname=powerdns
+gmysql-password=mysecretpassword
+##############################
 systemctl enable pdns.service
 systemctl start pdns.service
 
@@ -136,4 +135,6 @@ sh ./create_records.sh 0 1000
 #############################################
 #-u flag
 
-#mySQL USE powerdns,
+#mySQL is euqal to "name rNNN.test.com"
+number=$(mysql -u powerdns -ptecmint123 powerdns -se "SELECT name FROM records WHERE id=(SELECT max(id) FROM records);" | sed 's/[^0-9]*//g')
+sh ./create_records.sh $((number+1)) $((number+100))
