@@ -9,7 +9,7 @@ then
   $startIndex = 1
 fi
 
-for i in {$startIndex..$endIndex}
+for ((i="$startIndex"; i<="$endIndex"; i++ ))
 do
   pdnsutil add-record test.com r"$i" A 192.168.1.2
 done
