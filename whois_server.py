@@ -39,7 +39,7 @@ class WhoisHandler(SocketServer.BaseRequestHandler):
             else:
                 #response = query_url(query)
                 response = 'response: ' + query
-            self.request.send(response + '\n\n')
+            self.request.send(response + '\r\n\r\n\n')
         #log self.client_address[0] #log to redis?
         #setup query
 
