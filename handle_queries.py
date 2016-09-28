@@ -19,8 +19,8 @@ class HandleQueries():
         cursor = self.db.cursor()
         query = ("SELECT * FROM records WHERE name LIKE %s")
         cursor.execute(query, (url,))
-        for curse in cursor:
-            print curse
+        for (domain_id, name, content, ttl) in cursor:
+            print ('{}: {}, domain_id:{} ttl:{}'.format(name, content, domain_id, ttl))
         #return return_string #return string to send
 
     def end_queries(self):
