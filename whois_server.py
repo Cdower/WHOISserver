@@ -55,6 +55,7 @@ class HandleQueries():
         #if empty, insert new row into table, else itterate num_connect
         if(cursor):
             for curse in cursor:
+                print "Row: "
                 print curse
         else:
             print("no cursor")
