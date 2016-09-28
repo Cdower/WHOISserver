@@ -21,9 +21,8 @@ class HandleQueries():
         query = ("SELECT * FROM records WHERE name LIKE %s")
         cursor.execute(query, ("%%"+url,))
         for curse in cursor:
-            print curse
-            print '-'*10
-        #return return_string #return string to send
+            return_string += 'Server Name: ' + curse[2] + '\nIP Address: ' + curse[4] + '\n\n'
+        return return_string #return string to send
 
     def end_queries(self):
         self.db.close()
