@@ -15,7 +15,7 @@ systemctl start mariadb.service
 yum install epel-release yum-plugin-priorities
 curl -o /etc/yum.repos.d/powerdns-auth-40.repo https://repo.powerdns.com/repo-files/centos-auth-40.repo
 #install pdns and backend
-yum -y install pdns pdns-backend-mysql
+yum -y install pdns pdns-backend-mysql mysql-connector-python
 
 mysql -u root -p
 ######################
