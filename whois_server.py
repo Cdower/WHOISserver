@@ -64,8 +64,8 @@ class WhoisHandler(SocketServer.BaseRequestHandler):
                 #response = query_ip(ip)
                 response = 'response: ' + ip
             else:
-                #response = query_url(query)
-                response = 'response: ' + query
+                queryH = HandleQueries(3306)
+                response = queryH.name_query(query)
             self.request.sendall(response + '\n\n')
         #log self.client_address[0] #log to redis?
         #setup query
