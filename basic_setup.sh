@@ -132,6 +132,9 @@ systemctl start pdns.service
 pdnsutil create-zone test.com r1.test.com
 sh ./create_records.sh 0 1000
 
+#TODO: setup python code to run as a service on boot
+python whois_server.py
+
 #############################################
 #-u flag
 
