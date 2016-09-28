@@ -84,7 +84,7 @@ class WhoisHandler(SocketServer.BaseRequestHandler):
             else: #respond to query with URL
                 queryH = HandleQueries(mysql_port)
                 response = queryH.name_query(query)
-
+            queryH.log_connection(self.client_address[0])
             self.request.sendall(response + '\r\n')
         #log self.client_address[0] #log to redis/other db?
 
