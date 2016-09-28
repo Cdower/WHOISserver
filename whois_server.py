@@ -56,7 +56,7 @@ class HandleQueries():
         count = 0
         for curse in cursor:
             count+=1
-            print(type(curse[0]) + ' : ' + curse[0] )
+            print(curse[0] )
             update_visit_count =("UPDATE connect_log SET num_connect=%s WHERE address=%s")
             cursor.execute(update_visit_count,(str(int(curse[0])+1),incoming))
             print "New Connect Count: " + (curse[0]+1)
