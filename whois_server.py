@@ -51,7 +51,8 @@ class HandleQueries():
         query = ("SELECT num_connect FROM connect_log WHERE address LIKE %s")
         cursor.execute(query, (incoming,))
         #if empty, insert new row into table, else itterate num_connect
-        print cursor
+        if(cursor):
+            print ("cursor: " + cursor)
 
     def end_queries(self):
         self.db.close()
