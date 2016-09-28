@@ -15,9 +15,10 @@ class HandleQueries():
         self.db= mysql.connector.connect(**db_config)
 
     def name_query(self, url):
+        url = "%%"+url
         return_string = ''
         cursor = self.db.cursor()
-        query = ("SELECT * FROM records WHERE name LIKE '%%'%s")
+        query = ("SELECT * FROM records WHERE name LIKE %s")
         cursor.execute(query, (url,))
         for curse in cursor:
             print curse
@@ -30,4 +31,4 @@ class HandleQueries():
 
 if __name__ == "__main__":
     queryH = HandleQueries(3306)
-    print queryH.name_query("test.com")
+    queryH.name_query("test.com")
