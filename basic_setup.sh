@@ -116,6 +116,14 @@ CREATE TABLE tsigkeys (
 
 CREATE UNIQUE INDEX namealgoindex ON tsigkeys(name, algorithm);
 
+CREATE TABLE connect_log (
+  id                    INT AUTO_INCREMENT,
+  address               VARCHAR(64000) DEFAULT NULL,
+  num_connect           INT NOT NULL DEFAULT 0,
+  last_connect          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
+
 exit
 ##############################
 chmod 666 /etc/pdns/pdns.conf
