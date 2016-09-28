@@ -9,9 +9,21 @@ syslog.openlog('Whois_Server_Queries', )
 
 host = config.get('whois_server', 'host')
 port = int(config.get('whois_server', 'port'))
+mysql_port = int(config.get('whois_server', 'mysql_db'))
 import SocketServer
 
 import IPy
+import MySQLdb
+
+class HandleQueries():
+     def __init__(self, mysql_port):
+         self.db=_mysql.connect(host='localhost', user='powerdns', passwd='tecmint123', db='powerdns', port=mysql_port)
+
+    def name_query(self, query):
+        c = self.db.cursor()
+        to_return = c.execute("""SELECT * FROM records WHERE name LIKE  %s""", (query,))
+        print c.fetchall()
+
 
 class WhoisHandler(SocketServer.BaseRequestHandler):
     """
