@@ -56,10 +56,11 @@ class HandleQueries():
         count = 0
         for curse in cursor:
             count+=1
-            print(curse[0] )
+            connection_count = int(curse[0])
+            connection_count += 1
             update_visit_count =("UPDATE connect_log SET num_connect=%s WHERE address=%s")
-            cursor.execute(update_visit_count,(str(int(curse[0])+1),incoming))
-            print "New Connect Count: " + (curse[0]+1)
+            cursor.execute(update_visit_count,(connection_count,incoming))
+            print "New Connect Count: " + connection_count
         if(count == 0):
             add_address =("INSERT INTO connect_log (address, num_connect) VALUES (%s, %s)")
             cursor.execute(add_address,(incoming, 1))
