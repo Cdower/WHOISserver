@@ -55,7 +55,7 @@ class HandleQueries():
         #if empty, insert new row into table, else itterate num_connect
         count = 0
         for curse in cursor:
-            count++
+            count+=1
             print "Row: "
             print curse
         if(count == 0):
