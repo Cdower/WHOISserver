@@ -37,7 +37,7 @@ class HandleQueries():
         return return_string #return string to send
 
     def ip_query(self, ip):
-        return string = ''
+        return_string = ''
         cursor = self.db.cursor()
         query = ("SELECT * FROM records WHERE content LIKE %s")
         cursor.execute(query, (ip,))
