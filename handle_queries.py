@@ -17,7 +17,7 @@ class HandleQueries():
     def name_query(self, url):
         return_string = ''
         cursor = self.db.cursor()
-        query = ("SELECT * FROM records WHERE name LIKE %s")
+        query = ("SELECT * FROM records WHERE name LIKE '%'%s")
         cursor.execute(query, (url,))
         for curse in cursor:
             print curse
