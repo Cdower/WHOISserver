@@ -17,7 +17,7 @@ import mysql.connector
 
 class HandleQueries():
     def __init__(self, mysql_port):
-        dself.config= db_config = {
+        self.config= db_config = {
             'user': 'powerdns',
             'password': 'tecmint123',
             'host': 'localhost',
