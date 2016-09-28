@@ -19,8 +19,9 @@ class HandleQueries():
         cursor = self.db.cursor()
         query = ("SELECT * FROM records WHERE name LIKE %s")
         cursor.execute(query, (url,))
-        for (domain_id, name, content) in cursor:
-            print ('{}: {}, domain_id:{}'.format(name, content, domain_id))
+        for curse in cursor:
+            print curse
+            print '-'*10
         #return return_string #return string to send
 
     def end_queries(self):
