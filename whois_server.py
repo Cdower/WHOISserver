@@ -13,18 +13,32 @@ mysql_port = int(config.get('whois_server', 'mysql_db'))
 import SocketServer
 
 import IPy
-import MySQLdb
+import mysql.connector
 
 class HandleQueries():
-     def __init__(self, mysql_port):
-         self.db=_mysql.connect(host='localhost', user='powerdns', passwd='tecmint123', db='powerdns', port=mysql_port)
+    def __init__(self, mysql_port):
+        db_config = {
+            'user': 'powerdns',
+            'password': 'tecmint123',
+            'host': 'localhost',
+            'database': 'powerdns',
+            'port': mysql_port
+        }
+        self.db= mysql.connector.connect(**db_config)
 
-    def name_query(self, query):
-        c = self.db.cursor()
-        to_return = c.execute("""SELECT * FROM records WHERE name LIKE  %s""", (query,))
-        print c.fetchall()
+    def name_query(self, url):
+        return_string = ''
+        cursor = self.db.cursor()
+        query = ("SELECT * FROM records WHERE name LIKE %s")
+        cursor.execute(query, (url,))
+        for curse in cursor:
+            print curse
+        #return return_string #return string to send
 
+    def end_queries(self):
+        self.db.close()
 
+        
 class WhoisHandler(SocketServer.BaseRequestHandler):
     """
     Handles whois requests
