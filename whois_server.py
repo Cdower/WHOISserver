@@ -45,6 +45,14 @@ class HandleQueries():
             return_string += 'Server Name: ' + curse[2] + '\nIP Address: ' + curse[4] + '\n\n'
         return return_string #return string to send
 
+    def log_connection(self, incoming):
+        cursor = self.db.cursor()
+        #query db for IP
+        query = ("SELECT num_connect FROM connect_log WHERE address LIKE %s")
+        cursor.execute(query, (incoming,))
+        #if empty, insert new row into table, else itterate num_connect
+        print cursor
+
     def end_queries(self):
         self.db.close()
 
@@ -54,7 +62,7 @@ class WhoisHandler(SocketServer.BaseRequestHandler):
     Handles whois requests
     """
     def handle(self):
-        syslog.syslog(syslog.LOG_INFO, self.client_address[0] + ' is connected') #log client connections
+        syslog.syslog(syslog.LOG_INFO, self.client_address[0] + ' is connected') #log client connections to /var/log/messages
         #count which clients log in.
         queries = 0
         while 1:
@@ -75,6 +83,7 @@ class WhoisHandler(SocketServer.BaseRequestHandler):
             else: #respond to query with URL
                 queryH = HandleQueries(mysql_port)
                 response = queryH.name_query(query)
+
             self.request.sendall(response + '\r\n')
         #log self.client_address[0] #log to redis/other db?
 
