@@ -56,10 +56,14 @@ class HandleQueries():
         count = 0
         for curse in cursor:
             count+=1
-            print "Row: "
+            print "itterate count on Row: "
             print curse
         if(count == 0):
-            print "No match found inserting row"
+            add_address =("INSERT INTO connect_log (address, num_connect) VALUES (%s, %s)")
+            cursor.execute(add_address,(incoming, 1))
+            self.db.commit()
+            print "No match found, inserting row"
+        cursor.close()
 
     def end_queries(self):
         self.db.close()
