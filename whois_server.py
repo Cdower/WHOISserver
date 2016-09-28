@@ -52,7 +52,9 @@ class HandleQueries():
         cursor.execute(query, (incoming,))
         #if empty, insert new row into table, else itterate num_connect
         if(cursor):
-            print ("cursor: " + cursor)
+            print (cursor)
+        else:
+            print("no cursor")
 
     def end_queries(self):
         self.db.close()
