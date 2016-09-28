@@ -17,7 +17,7 @@ import mysql.connector
 
 class HandleQueries():
     def __init__(self, mysql_port):
-        db_config = {
+        dself.config= db_config = {
             'user': 'powerdns',
             'password': 'tecmint123',
             'host': 'localhost',
@@ -34,6 +34,7 @@ class HandleQueries():
         #if no cursor set return string equal to error?
         for curse in cursor:
             return_string += 'Server Name: ' + curse[2] + '\nIP Address: ' + curse[4] + '\n\n'
+        cursor.close()
         return return_string #return string to send
 
     def ip_query(self, ip):
@@ -43,6 +44,7 @@ class HandleQueries():
         cursor.execute(query, (ip,))
         for curse in cursor:
             return_string += 'Server Name: ' + curse[2] + '\nIP Address: ' + curse[4] + '\n\n'
+        cursor.close()
         return return_string #return string to send
 
     def log_connection(self, incoming):
@@ -52,7 +54,8 @@ class HandleQueries():
         cursor.execute(query, (incoming,))
         #if empty, insert new row into table, else itterate num_connect
         if(cursor):
-            print (cursor)
+            for curse in cursor:
+                print curse
         else:
             print("no cursor")
 
