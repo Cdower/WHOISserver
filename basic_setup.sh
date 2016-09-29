@@ -1,8 +1,6 @@
-
-
 #-i  all sudo? run script as sudo/root?
 
-yum install epel-release.noarch
+yum -y install epel-release.noarch
 yum -y install mariadb-server mariadb
 
 #make MySWL run on boot
@@ -12,13 +10,14 @@ systemctl start mariadb.service
 #mysql_secure_installation
 
 #Yum repo
-yum install epel-release yum-plugin-priorities
+yum -y install epel-release yum-plugin-priorities
 curl -o /etc/yum.repos.d/powerdns-auth-40.repo https://repo.powerdns.com/repo-files/centos-auth-40.repo
 #install pdns and backend
 yum -y install pdns pdns-backend-mysql mysql-connector-python
 
-mysql -u root -p
+#mysql -u root -p
 ######################
+mysql -u root -se "
 CREATE DATABASE powerdns;
 GRANT ALL ON powerdns.* TO 'powerdns'@'localhost' IDENTIFIED BY 'mysecretpassword';
 GRANT ALL ON powerdns.* TO 'powerdns'@'centos7.localdomain' IDENTIFIED BY 'mysecretpassword';
@@ -122,17 +121,17 @@ CREATE TABLE connect_log (
   num_connect           INT NOT NULL DEFAULT 0,
   last_connect          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
-);
+);"
 
-exit
 ##############################
-chmod 666 /etc/pdns/pdns.conf
+#chmod 666 /etc/pdns/pdns.conf #not needed since running script as root???
 #append to /etc/pdns/pdns.config
+echo "
 launch=gmysql
 gmysql-host=localhost
 gmysql-user=powerdns
 gmysql-dbname=powerdns
-gmysql-password=mysecretpassword
+gmysql-password=mysecretpassword" > /etc/pdns/pdns.conf
 ##############################
 systemctl enable pdns.service
 systemctl start pdns.service
@@ -141,7 +140,30 @@ pdnsutil create-zone test.com r1.test.com
 sh ./create_records.sh 0 1000
 
 #TODO: setup python code to run as a service on boot
-python whois_server.py
+#echo whoisd.service to /etc/systemd/system/whoisd.service
+echo "#!/bin/sh
+#
+
+[Unit]
+Description=whoisd service
+After=syslog.target
+
+[Service]
+Type=simple
+ExecStart=/bin/python "$PWD"/whois_server.py
+StandardOutput=syslog
+StandardError=syslog
+Restart=on-abort
+KillMode=process
+
+ExecStop=/bing/rm -rf /var/run/whoisd.sock
+
+[Install]
+WantedBy=multi-user.target
+" > /etc/systemd/system/whoisd.service
+chmod 664 /etc/systemd/system/whoisd.service
+systemctl start whoisd
+#python whois_server.py
 
 #############################################
 #-u flag
@@ -149,3 +171,8 @@ python whois_server.py
 #mySQL is euqal to "name rNNN.test.com"
 number=$(mysql -u powerdns -ptecmint123 powerdns -se "SELECT name FROM records WHERE id=(SELECT max(id) FROM records);" | sed 's/[^0-9]*//g')
 sh ./create_records.sh $((number+1)) $((number+100))
+
+#############################################
+#-m flags
+#check for $file, if its there move it $oldfile
+echo $(dig @localhost test.com AXFR) > file
