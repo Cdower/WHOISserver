@@ -1,179 +1,191 @@
-#-i  all sudo? run script as sudo/root?
+key="$1"
+case key in
+  -i)
+  yum -y install epel-release.noarch
+  yum -y install mariadb-server mariadb
 
-yum -y install epel-release.noarch
-yum -y install mariadb-server mariadb
+  #make MySWL run on boot
+  systemctl enable mariadb.service
+  systemctl start mariadb.service
+  #setup password and stuff ignore for now
+  #mysql_secure_installation
 
-#make MySWL run on boot
-systemctl enable mariadb.service
-systemctl start mariadb.service
-#setup password and stuff ignore for now
-#mysql_secure_installation
+  #Yum repo
+  yum -y install epel-release yum-plugin-priorities
+  curl -o /etc/yum.repos.d/powerdns-auth-40.repo https://repo.powerdns.com/repo-files/centos-auth-40.repo
+  #install pdns and backend
+  yum -y install pdns pdns-backend-mysql mysql-connector-python
 
-#Yum repo
-yum -y install epel-release yum-plugin-priorities
-curl -o /etc/yum.repos.d/powerdns-auth-40.repo https://repo.powerdns.com/repo-files/centos-auth-40.repo
-#install pdns and backend
-yum -y install pdns pdns-backend-mysql mysql-connector-python
+  mysql -u root -se "
+  CREATE DATABASE powerdns;
+  GRANT ALL ON powerdns.* TO 'powerdns'@'localhost' IDENTIFIED BY 'mysecretpassword';
+  GRANT ALL ON powerdns.* TO 'powerdns'@'centos7.localdomain' IDENTIFIED BY 'mysecretpassword';
+  FLUSH PRIVILEGES;
+  USE powerdns;
 
-#mysql -u root -p
-######################
-mysql -u root -se "
-CREATE DATABASE powerdns;
-GRANT ALL ON powerdns.* TO 'powerdns'@'localhost' IDENTIFIED BY 'mysecretpassword';
-GRANT ALL ON powerdns.* TO 'powerdns'@'centos7.localdomain' IDENTIFIED BY 'mysecretpassword';
-FLUSH PRIVILEGES;
-USE powerdns;
+  CREATE TABLE domains (
+    id                    INT AUTO_INCREMENT,
+    name                  VARCHAR(255) NOT NULL,
+    master                VARCHAR(128) DEFAULT NULL,
+    last_check            INT DEFAULT NULL,
+    type                  VARCHAR(6) NOT NULL,
+    notified_serial       INT DEFAULT NULL,
+    account               VARCHAR(40) DEFAULT NULL,
+    PRIMARY KEY (id)
+  ) Engine=InnoDB;
 
-CREATE TABLE domains (
-  id                    INT AUTO_INCREMENT,
-  name                  VARCHAR(255) NOT NULL,
-  master                VARCHAR(128) DEFAULT NULL,
-  last_check            INT DEFAULT NULL,
-  type                  VARCHAR(6) NOT NULL,
-  notified_serial       INT DEFAULT NULL,
-  account               VARCHAR(40) DEFAULT NULL,
-  PRIMARY KEY (id)
-) Engine=InnoDB;
-
-CREATE UNIQUE INDEX name_index ON domains(name);
-
-
-CREATE TABLE records (
-  id                    INT AUTO_INCREMENT,
-  domain_id             INT DEFAULT NULL,
-  name                  VARCHAR(255) DEFAULT NULL,
-  type                  VARCHAR(10) DEFAULT NULL,
-  content               VARCHAR(64000) DEFAULT NULL,
-  ttl                   INT DEFAULT NULL,
-  prio                  INT DEFAULT NULL,
-  change_date           INT DEFAULT NULL,
-  disabled              TINYINT(1) DEFAULT 0,
-  ordername             VARCHAR(255) BINARY DEFAULT NULL,
-  auth                  TINYINT(1) DEFAULT 1,
-  PRIMARY KEY (id)
-) Engine=InnoDB;
-
-CREATE INDEX nametype_index ON records(name,type);
-CREATE INDEX domain_id ON records(domain_id);
-CREATE INDEX recordorder ON records (domain_id, ordername);
+  CREATE UNIQUE INDEX name_index ON domains(name);
 
 
-CREATE TABLE supermasters (
-  ip                    VARCHAR(64) NOT NULL,
-  nameserver            VARCHAR(255) NOT NULL,
-  account               VARCHAR(40) NOT NULL,
-  PRIMARY KEY (ip, nameserver)
-) Engine=InnoDB;
+  CREATE TABLE records (
+    id                    INT AUTO_INCREMENT,
+    domain_id             INT DEFAULT NULL,
+    name                  VARCHAR(255) DEFAULT NULL,
+    type                  VARCHAR(10) DEFAULT NULL,
+    content               VARCHAR(64000) DEFAULT NULL,
+    ttl                   INT DEFAULT NULL,
+    prio                  INT DEFAULT NULL,
+    change_date           INT DEFAULT NULL,
+    disabled              TINYINT(1) DEFAULT 0,
+    ordername             VARCHAR(255) BINARY DEFAULT NULL,
+    auth                  TINYINT(1) DEFAULT 1,
+    PRIMARY KEY (id)
+  ) Engine=InnoDB;
+
+  CREATE INDEX nametype_index ON records(name,type);
+  CREATE INDEX domain_id ON records(domain_id);
+  CREATE INDEX recordorder ON records (domain_id, ordername);
 
 
-CREATE TABLE comments (
-  id                    INT AUTO_INCREMENT,
-  domain_id             INT NOT NULL,
-  name                  VARCHAR(255) NOT NULL,
-  type                  VARCHAR(10) NOT NULL,
-  modified_at           INT NOT NULL,
-  account               VARCHAR(40) NOT NULL,
-  comment               VARCHAR(64000) NOT NULL,
-  PRIMARY KEY (id)
-) Engine=InnoDB;
-
-CREATE INDEX comments_domain_id_idx ON comments (domain_id);
-CREATE INDEX comments_name_type_idx ON comments (name, type);
-CREATE INDEX comments_order_idx ON comments (domain_id, modified_at);
+  CREATE TABLE supermasters (
+    ip                    VARCHAR(64) NOT NULL,
+    nameserver            VARCHAR(255) NOT NULL,
+    account               VARCHAR(40) NOT NULL,
+    PRIMARY KEY (ip, nameserver)
+  ) Engine=InnoDB;
 
 
-CREATE TABLE domainmetadata (
-  id                    INT AUTO_INCREMENT,
-  domain_id             INT NOT NULL,
-  kind                  VARCHAR(32),
-  content               TEXT,
-  PRIMARY KEY (id)
-) Engine=InnoDB;
+  CREATE TABLE comments (
+    id                    INT AUTO_INCREMENT,
+    domain_id             INT NOT NULL,
+    name                  VARCHAR(255) NOT NULL,
+    type                  VARCHAR(10) NOT NULL,
+    modified_at           INT NOT NULL,
+    account               VARCHAR(40) NOT NULL,
+    comment               VARCHAR(64000) NOT NULL,
+    PRIMARY KEY (id)
+  ) Engine=InnoDB;
 
-CREATE INDEX domainmetadata_idx ON domainmetadata (domain_id, kind);
-
-
-CREATE TABLE cryptokeys (
-  id                    INT AUTO_INCREMENT,
-  domain_id             INT NOT NULL,
-  flags                 INT NOT NULL,
-  active                BOOL,
-  content               TEXT,
-  PRIMARY KEY(id)
-) Engine=InnoDB;
-
-CREATE INDEX domainidindex ON cryptokeys(domain_id);
+  CREATE INDEX comments_domain_id_idx ON comments (domain_id);
+  CREATE INDEX comments_name_type_idx ON comments (name, type);
+  CREATE INDEX comments_order_idx ON comments (domain_id, modified_at);
 
 
-CREATE TABLE tsigkeys (
-  id                    INT AUTO_INCREMENT,
-  name                  VARCHAR(255),
-  algorithm             VARCHAR(50),
-  secret                VARCHAR(255),
-  PRIMARY KEY (id)
-) Engine=InnoDB;
+  CREATE TABLE domainmetadata (
+    id                    INT AUTO_INCREMENT,
+    domain_id             INT NOT NULL,
+    kind                  VARCHAR(32),
+    content               TEXT,
+    PRIMARY KEY (id)
+  ) Engine=InnoDB;
 
-CREATE UNIQUE INDEX namealgoindex ON tsigkeys(name, algorithm);
+  CREATE INDEX domainmetadata_idx ON domainmetadata (domain_id, kind);
 
-CREATE TABLE connect_log (
-  id                    INT AUTO_INCREMENT,
-  address               VARCHAR(64000) DEFAULT NULL,
-  num_connect           INT NOT NULL DEFAULT 0,
-  last_connect          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
-);"
 
-##############################
-#chmod 666 /etc/pdns/pdns.conf #not needed since running script as root???
-#append to /etc/pdns/pdns.config
-echo "
-launch=gmysql
-gmysql-host=localhost
-gmysql-user=powerdns
-gmysql-dbname=powerdns
-gmysql-password=mysecretpassword" > /etc/pdns/pdns.conf
-##############################
-systemctl enable pdns.service
-systemctl start pdns.service
+  CREATE TABLE cryptokeys (
+    id                    INT AUTO_INCREMENT,
+    domain_id             INT NOT NULL,
+    flags                 INT NOT NULL,
+    active                BOOL,
+    content               TEXT,
+    PRIMARY KEY(id)
+  ) Engine=InnoDB;
 
-pdnsutil create-zone test.com r1.test.com
-sh ./create_records.sh 0 1000
+  CREATE INDEX domainidindex ON cryptokeys(domain_id);
 
-#TODO: setup python code to run as a service on boot
-#echo whoisd.service to /etc/systemd/system/whoisd.service
-echo "#!/bin/sh
-#
 
-[Unit]
-Description=whoisd service
-After=syslog.target
+  CREATE TABLE tsigkeys (
+    id                    INT AUTO_INCREMENT,
+    name                  VARCHAR(255),
+    algorithm             VARCHAR(50),
+    secret                VARCHAR(255),
+    PRIMARY KEY (id)
+  ) Engine=InnoDB;
 
-[Service]
-Type=simple
-ExecStart=/bin/python "$PWD"/whois_server.py
-StandardOutput=syslog
-StandardError=syslog
-Restart=on-abort
-KillMode=process
+  CREATE UNIQUE INDEX namealgoindex ON tsigkeys(name, algorithm);
 
-ExecStop=/bing/rm -rf /var/run/whoisd.sock
+  CREATE TABLE connect_log (
+    id                    INT AUTO_INCREMENT,
+    address               VARCHAR(64000) DEFAULT NULL,
+    num_connect           INT NOT NULL DEFAULT 0,
+    last_connect          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+  );"
 
-[Install]
-WantedBy=multi-user.target
-" > /etc/systemd/system/whoisd.service
-chmod 664 /etc/systemd/system/whoisd.service
-systemctl enable whoisd.service
-systemctl start whoisd
+  ##############################
+  #chmod 666 /etc/pdns/pdns.conf #not needed since running script as root???
+  #append to /etc/pdns/pdns.config
+  echo "
+  launch=gmysql
+  gmysql-host=localhost
+  gmysql-user=powerdns
+  gmysql-dbname=powerdns
+  gmysql-password=mysecretpassword" > /etc/pdns/pdns.conf
+  ##############################
+  systemctl enable pdns.service
+  systemctl start pdns.service
+
+  pdnsutil create-zone test.com r1.test.com
+  sh ./create_records.sh 0 1000
+
+  #echo whoisd.service to /etc/systemd/system/whoisd.service
+  echo "#!/bin/sh
+  #
+
+  [Unit]
+  Description=whoisd service
+  After=syslog.target
+
+  [Service]
+  Type=simple
+  ExecStart=/bin/python "$PWD"/whois_server.py
+  StandardOutput=syslog
+  StandardError=syslog
+  Restart=on-abort
+  KillMode=process
+
+  ExecStop=/bing/rm -rf /var/run/whoisd.sock
+
+  [Install]
+  WantedBy=multi-user.target
+  " > /etc/systemd/system/whoisd.service
+  chmod 664 /etc/systemd/system/whoisd.service
+  systemctl enable whoisd.service
+  systemctl start whoisd
+  ;;
+  -u)
+  #mySQL is euqal to "name rNNN.test.com"
+  number=$(mysql -u powerdns -ptecmint123 powerdns -se "SELECT name FROM records WHERE id=(SELECT max(id) FROM records);" | sed 's/[^0-9]*//g')
+  sh ./create_records.sh $((number+1)) $((number+100))
+  ;;
+  -m)
+  #check for $file, if its there move it $oldfile
+  echo $(dig @localhost test.com AXFR) > file
+  ;;
+  *)
+  echo "$1 is not a proper argument, use -i -u or -m"
+  ;;
+esac
+
+#-i
+
+
 #python whois_server.py
 
 #############################################
 #-u flag
 
-#mySQL is euqal to "name rNNN.test.com"
-number=$(mysql -u powerdns -ptecmint123 powerdns -se "SELECT name FROM records WHERE id=(SELECT max(id) FROM records);" | sed 's/[^0-9]*//g')
-sh ./create_records.sh $((number+1)) $((number+100))
+
 
 #############################################
 #-m flags
-#check for $file, if its there move it $oldfile
-echo $(dig @localhost test.com AXFR) > file
