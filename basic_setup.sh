@@ -162,6 +162,7 @@ ExecStop=/bing/rm -rf /var/run/whoisd.sock
 WantedBy=multi-user.target
 " > /etc/systemd/system/whoisd.service
 chmod 664 /etc/systemd/system/whoisd.service
+systemctl enable whoisd.service
 systemctl start whoisd
 #python whois_server.py
 
