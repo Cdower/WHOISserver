@@ -1,5 +1,5 @@
 key="$1"
-case key in
+case $key in
   -i)
   yum -y install epel-release.noarch
   yum -y install mariadb-server mariadb
@@ -130,7 +130,7 @@ case key in
   gmysql-host=localhost
   gmysql-user=powerdns
   gmysql-dbname=powerdns
-  gmysql-password=mysecretpassword" > /etc/pdns/pdns.conf
+  gmysql-password=mysecretpassword" >> /etc/pdns/pdns.conf
   ##############################
   systemctl enable pdns.service
   systemctl start pdns.service
@@ -169,6 +169,7 @@ case key in
   sh ./create_records.sh $((number+1)) $((number+100))
   ;;
   -m)
+  #TODO: THIS
   #check for $file, if its there move it $oldfile
   echo $(dig @localhost test.com AXFR) > file
   ;;
