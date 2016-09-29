@@ -1,8 +1,9 @@
-#!/usr/bin/env python
-
+#!/usr/bin/python
+import os
 import ConfigParser
+dir_path = os.path.dirname(os.path.realpath(__file__))
 config= ConfigParser.RawConfigParser();
-config.read("./whois_server.conf")
+config.read(dir_path+"/whois_server.conf")
 
 import syslog
 syslog.openlog('Whois_Server_Queries', )
