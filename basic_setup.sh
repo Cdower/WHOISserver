@@ -184,7 +184,7 @@ gmysql-password=$MYSQL_PASS" >> /etc/pdns/pdns.conf
     if [ $percent -gt 15 ]; then
       echo "A change in the AXFR of $percent percent has occured since last run. "
     else
-      echo "A change of less than 15% has occured "
+      echo "A change of less than 15% has occured since the last zone transfer"
     fi
   fi
   ;;
