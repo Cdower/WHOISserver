@@ -14,7 +14,7 @@ case $key in
   yum -y install epel-release yum-plugin-priorities
   curl -o /etc/yum.repos.d/powerdns-auth-40.repo https://repo.powerdns.com/repo-files/centos-auth-40.repo
   #install pdns and backend
-  yum -y install pdns pdns-backend-mysql mysql-connector-python
+  yum -y install pdns pdns-backend-mysql mysql-connector-python bc
 
   mysql -u root -se "
   CREATE DATABASE powerdns;
@@ -171,7 +171,22 @@ case $key in
   -m)
   #TODO: THIS
   #check for $file, if its there move it $oldfile
-  echo $(dig @localhost test.com AXFR) > file
+  if [ ! -f $PWD/axfr_c.txt ]; then
+    echo "No Previous zone transfers, no other change possible. Writing new AXFR Transfer"
+    echo $(dig @localhost test.com AXFR) > $PWD/axfr_c.txt
+  else
+    mv $PWD/axfr_c.txt $PWD/axfr.old
+    echo $(dig @localhost test.com AXFR) > $PWD/axfr_c.txt
+    axfr_len=$(cat $PWD/axfr_c.txt | wc -l)
+    old_len=$(cat $PWD/axfr_c.old | wc -l)
+    difference=$(sdiff -B -s $PWD/axfr_c.txt $PWD/axfr_c.old | wc -l)
+    percent=$(echo "100 * $difference / $old_len" | bc)
+    if [$percent -gt 15]; then
+      echo "A change in the AXFR of $percent has occured since last run. "
+    else
+      echo "A change of less than 15% has occured"
+    fi
+  fi
   ;;
   *)
   echo "$1 is not a proper argument, use -i -u or -m"
