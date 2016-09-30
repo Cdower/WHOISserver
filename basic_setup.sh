@@ -179,10 +179,9 @@ case $key in
     echo $(dig @localhost test.com AXFR) > $PWD/axfr_c.txt
     axfr_len=$(cat $PWD/axfr_c.txt | wc -c)
     old_len=$(cat $PWD/axfr.old | wc -c)
-    difference=$(sdiff -B -s $PWD/axfr_c.txt $PWD/axfr.old | wc -c)
-
+    difference=$(expr $axfr_len - $old_len)
     percent=$(echo "100 * $difference / $old_len" | bc)
-    if [$percent > 15]; then
+    if [$percent -gt 15]; then
       echo "A change in the AXFR of $percent has occured since last run. "
     else
       echo "A change of less than 15% has occured "
