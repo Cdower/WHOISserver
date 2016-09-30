@@ -19,9 +19,9 @@ case $key in
   mysql -u root -se "CREATE DATABASE powerdns;
 GRANT ALL ON powerdns.* TO 'powerdns'@'localhost' IDENTIFIED BY 'mysecretpassword';
 GRANT ALL ON powerdns.* TO 'powerdns'@'centos7.localdomain' IDENTIFIED BY 'mysecretpassword';
-FLUSH PRIVILEGES;
+FLUSH PRIVILEGES;"
+mysql -u powerdns -pmysecretpassword powerdns -se "
 USE powerdns;
-
 CREATE TABLE domains (
   id                    INT AUTO_INCREMENT,
   name                  VARCHAR(255) NOT NULL,
