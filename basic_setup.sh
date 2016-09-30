@@ -1,4 +1,6 @@
 key="$1"
+MYSQL_USER='powerdns'
+MYSQL_PASS='mysecretpassword'
 case $key in
   -i)
   yum -y install epel-release.noarch
@@ -17,10 +19,10 @@ case $key in
   yum -y install pdns pdns-backend-mysql mysql-connector-python bc whois bind-utils
 
   mysql -u root -se "CREATE DATABASE powerdns;
-GRANT ALL ON powerdns.* TO 'powerdns'@'localhost' IDENTIFIED BY 'mysecretpassword';
-GRANT ALL ON powerdns.* TO 'powerdns'@'centos7.localdomain' IDENTIFIED BY 'mysecretpassword';
+GRANT ALL ON $MYSQL_USER.* TO 'powerdns'@'localhost' IDENTIFIED BY '$MYSQL_PASS';
+GRANT ALL ON $MYSQL_USER.* TO 'powerdns'@'centos7.localdomain' IDENTIFIED BY '$MYSQL_PASS';
 FLUSH PRIVILEGES;"
-mysql -u powerdns -pmysecretpassword powerdns -se "
+mysql -u $MYSQL_USER -p$MYSQL_PASS powerdns -se "
 USE powerdns;
 CREATE TABLE domains (
   id                    INT AUTO_INCREMENT,
@@ -126,9 +128,9 @@ CREATE TABLE connect_log (
   #append to /etc/pdns/pdns.config
   echo "launch=gmysql
 gmysql-host=localhost
-gmysql-user=powerdns
+gmysql-user=$MYSQL_USER
 gmysql-dbname=powerdns
-gmysql-password=mysecretpassword" >> /etc/pdns/pdns.conf
+gmysql-password=$MYSQL_PASS" >> /etc/pdns/pdns.conf
   ##############################
   systemctl enable pdns.service
   systemctl start pdns.service
@@ -163,7 +165,7 @@ gmysql-password=mysecretpassword" >> /etc/pdns/pdns.conf
   ;;
   -u)
   #mySQL is euqal to "name rNNN.test.com"
-  number=$(mysql -u powerdns -ptecmint123 powerdns -se "SELECT name FROM records WHERE id=(SELECT max(id) FROM records);" | sed 's/[^0-9]*//g')
+  number=$(mysql -u $MYSQL_USER -p$MYSQL_PASS powerdns -se "SELECT name FROM records WHERE id=(SELECT max(id) FROM records);" | sed 's/[^0-9]*//g')
   sh ./create_records.sh $((number+1)) $((number+100))
   ;;
   -m)
@@ -190,16 +192,6 @@ gmysql-password=mysecretpassword" >> /etc/pdns/pdns.conf
   echo "$1 is not a proper argument, use -i -u or -m"
   ;;
 esac
-
-#-i
-
-
-#python whois_server.py
-
-#############################################
-#-u flag
-
-
-
-#############################################
-#-m flags
+#clear enviromental variables from path
+MYSQL_USER=''
+MYSQL_PASS=''
