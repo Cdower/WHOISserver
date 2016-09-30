@@ -11,8 +11,8 @@ syslog.openlog('Whois_Server_Queries', )
 host = config.get('whois_server', 'host')
 port = int(config.get('whois_server', 'port'))
 mysql_port = int(config.get('whois_server', 'mysql_port'))
-db_user = config.get('whois_server', mysql_user)
-db_pass = config.get('whois_server', mysql_pass)
+db_user = config.get('whois_server', 'mysql_user')
+db_pass = config.get('whois_server', 'mysql_pass')
 import SocketServer
 
 import IPy
