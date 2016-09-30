@@ -122,7 +122,7 @@ CREATE TABLE connect_log (
 );"
 
   ##############################
-  #chmod 666 /etc/pdns/pdns.conf #not needed since running script as root???
+  chmod 666 /etc/pdns/pdns.conf
   #append to /etc/pdns/pdns.config
   echo "
   launch=gmysql
