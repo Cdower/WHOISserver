@@ -1,4 +1,12 @@
-I went with powerdns for the dns server because it had integration with mysql which also integrated well with python. 
+I went with powerdns for the dns server because it had integration with mysql which also integrated well with python.
+To make sure the service is always running even after reboot, the install script creates a systemd unit file that calls python to run whois_server.py at boot. If the server is rebooted the script is automatically started by systemd.
 
+For the least possible damage to the system if the service was compromised, all read and write calls to the dns mysql database are made through a secondary class that does all of the mysql queries for the whois server class so that only expected queries can be made to the DB. All information sent to the queries is sanitized before the queries are made. This is done by inserting the information from the user via escaped strings and a tuple. Also files have the lowest possible permissions set with only root level execution.
 
-SELECT * FROM connect_log ORDER BY num_connect DESC LIMIT 5;
+To provide audit information connections are logged to the connection_log table in the powerdns database. Currently only the source ip and number of times it made a request to the whois server are logged in the log table but it could be expanded to keep any data the server recieves from the user. To get a list of the top 10 IP addresses accessing the server this MySQL Query can be used:
+
+SELECT * FROM connect_log ORDER BY num_connect DESC LIMIT 10;
+
+This query will return the top 10 rows and can be easily parsed.
+
+I chose to use MySQL for the logging because it was already setup for the DNS server and has the possibility of supporting more logging information. Although if I were certain the only information we wanted to log would be the number times an address access the server a key-value db like radis might allow for faster access.  
