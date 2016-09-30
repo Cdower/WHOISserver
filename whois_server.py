@@ -101,7 +101,8 @@ class WhoisHandler(SocketServer.BaseRequestHandler):
                 queryH = HandleQueries(mysql_port)
                 response = queryH.name_query(query)
             queryH.log_connection(self.client_address[0])
-            self.request.sendall(response + '\r\n')
+            self.request.sendall(response)
+            self.request.close() #added to close whois instead of letting it timeout
         #log self.client_address[0] #log to redis/other db?
 
 server = SocketServer.ThreadingTCPServer((host, port), WhoisHandler)
