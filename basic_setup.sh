@@ -14,7 +14,7 @@ case $key in
   yum -y install epel-release yum-plugin-priorities
   curl -o /etc/yum.repos.d/powerdns-auth-40.repo https://repo.powerdns.com/repo-files/centos-auth-40.repo
   #install pdns and backend
-  yum -y install pdns pdns-backend-mysql mysql-connector-python bc
+  yum -y install pdns pdns-backend-mysql mysql-connector-python bc whois bind-utils
 
   mysql -u root -se "CREATE DATABASE powerdns;
 GRANT ALL ON powerdns.* TO 'powerdns'@'localhost' IDENTIFIED BY 'mysecretpassword';
