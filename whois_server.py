@@ -11,6 +11,8 @@ syslog.openlog('Whois_Server_Queries', )
 host = config.get('whois_server', 'host')
 port = int(config.get('whois_server', 'port'))
 mysql_port = int(config.get('whois_server', 'mysql_port'))
+db_user = config.get('whois_server', mysql_user)
+db_pass = config.get('whois_server', mysql_pass)
 import SocketServer
 
 import IPy
@@ -19,8 +21,8 @@ import mysql.connector
 class HandleQueries():
     def __init__(self, mysql_port):
         self.config= db_config = {
-            'user': 'powerdns',
-            'password': 'tecmint123',
+            'user': db_user,
+            'password': db_pass,
             'host': 'localhost',
             'database': 'powerdns',
             'port': mysql_port
