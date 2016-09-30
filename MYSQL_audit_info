@@ -1,0 +1,1 @@
+SELECT * FROM connect_log ORDER BY num_connect DESC LIMIT 5;
