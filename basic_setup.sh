@@ -124,12 +124,11 @@ CREATE TABLE connect_log (
   ##############################
   chmod 666 /etc/pdns/pdns.conf
   #append to /etc/pdns/pdns.config
-  echo "
-  launch=gmysql
-  gmysql-host=localhost
-  gmysql-user=powerdns
-  gmysql-dbname=powerdns
-  gmysql-password=mysecretpassword" >> /etc/pdns/pdns.conf
+  echo "launch=gmysql
+gmysql-host=localhost
+gmysql-user=powerdns
+gmysql-dbname=powerdns
+gmysql-password=mysecretpassword" >> /etc/pdns/pdns.conf
   ##############################
   systemctl enable pdns.service
   systemctl start pdns.service
