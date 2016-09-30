@@ -177,7 +177,7 @@ case $key in
   else
     mv $PWD/axfr_c.txt $PWD/axfr.old
     echo $(dig @localhost test.com AXFR) > $PWD/axfr_c.txt
-    axfr_len=$(cat $PWD/axfr_c.txt | wc) -c
+    axfr_len=$(cat $PWD/axfr_c.txt | wc -c)
     old_len=$(cat $PWD/axfr.old | wc -c)
     difference=$(sdiff -B -s $PWD/axfr_c.txt $PWD/axfr.old | wc -c)
 
