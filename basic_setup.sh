@@ -178,8 +178,8 @@ case $key in
     mv $PWD/axfr_c.txt $PWD/axfr.old
     echo $(dig @localhost test.com AXFR) > $PWD/axfr_c.txt
     axfr_len=$(cat $PWD/axfr_c.txt | wc -l)
-    old_len=$(cat $PWD/axfr_c.old | wc -l)
-    difference=$(sdiff -B -s $PWD/axfr_c.txt $PWD/axfr_c.old | wc -l)
+    old_len=$(cat $PWD/axfr.old | wc -l)
+    difference=$(sdiff -B -s $PWD/axfr_c.txt $PWD/axfr.old | wc -l)
     percent=$(echo "100 * $difference / $old_len" | bc)
     if [$percent -gt 15]; then
       echo "A change in the AXFR of $percent has occured since last run. "
