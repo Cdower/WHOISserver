@@ -122,7 +122,7 @@ CREATE TABLE connect_log (
 );"
 
   ##############################
-  chmod 666 /etc/pdns/pdns.conf
+  chmod 644 /etc/pdns/pdns.conf
   #append to /etc/pdns/pdns.config
   echo "launch=gmysql
 gmysql-host=localhost
@@ -157,7 +157,7 @@ gmysql-password=mysecretpassword" >> /etc/pdns/pdns.conf
   [Install]
   WantedBy=multi-user.target
   " > /etc/systemd/system/whoisd.service
-  chmod 664 /etc/systemd/system/whoisd.service
+  chmod 644 /etc/systemd/system/whoisd.service
   systemctl enable whoisd.service
   systemctl start whoisd
   ;;
