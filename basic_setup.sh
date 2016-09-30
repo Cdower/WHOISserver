@@ -181,8 +181,8 @@ gmysql-password=$MYSQL_PASS" >> /etc/pdns/pdns.conf
     old_len=$(cat $PWD/axfr.old | wc -c)
     difference=$(expr $axfr_len - $old_len)
     percent=$(echo "100 * $difference / $old_len" | bc)
-    if [$percent -gt 15]; then
-      echo "A change in the AXFR of $percent has occured since last run. "
+    if [ $percent -gt 15 ]; then
+      echo "A change in the AXFR of $percent percent has occured since last run. "
     else
       echo "A change of less than 15% has occured "
     fi
